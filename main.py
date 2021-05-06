@@ -55,34 +55,36 @@ class Pear:
 
 class Snake:
     def __init__(self):
-        self.w = 30
-        self.h = 30
+        self.w = 20
+        self.h = 20
         self.x = width / 2
         self.y = height / 2
         self.name = 'Snake '
         self.body_color =pygame.image.load('E:/Python Online/Jalase 11/super_snake/snake.png')
         self.head_color = pygame.image.load('E:/Python Online/Jalase 11/super_snake/snake1.png')
-        self.speed = 5
+        self.speed = 20
         self.score = 0
         self.x_change = 0
         self.y_change = 0
         self.body = []
         self.font = pygame.font.SysFont(None,30)
         self.time = 0
-        self.length = 0
+        self.length = 1
+        self.fps = 10
 
         
            
     def draw_body(self):
+        self.body_color = pygame.transform.scale(self.body_color,(20,20))
+
         self.body_area =[self.x , self.y]
-        
         self.body.append(self.body_area)
         for body in self.body :
             #self.area = pygame.draw.rect(display,(250,0,0),(body[0],body[1],self.w,self.h))
             self.area = display.blit(self.body_color,(body[0] ,body[1]))
 
             if len(self.body) > self.length:
-                self.body.pop(0)
+                del(self.body[0])
 
 
     def eat(self):
@@ -96,9 +98,10 @@ class Snake:
     
     def play_time(self):
         
-        self.time += 1
-        count_time = self.font.render('Time : ' + str(self.time).rjust(3),True,(255,0,0))
+        count_time = self.font.render('FPS : ' + str(self.fps),True,(255,0,0))
         display.blit(count_time, (20,15))
+
+        
     
     def game_over(self):
         if self.score < 0 :
@@ -106,6 +109,11 @@ class Snake:
             text_surf = self.font.render('Game Over : ',True,(255,0,0))
             display.blit(text_surf, (380,380))
         
+    def difficulty(self):
+        
+        self.fps += 1
+
+               
 
     def move(self):
         if self.x_change == -1 :
@@ -131,14 +139,15 @@ if __name__ == "__main__":
     display = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
     pygame.display.set_caption('Snake')
+    img_gameover = pygame.image.load('E:/Python Online/Jalase 11/super_snake/gameover.jpg')
     snake = Snake()
     apple = Apple()
     pear = Pear()
     bomb = Bomb()
     
- 
+    run = True
 
-    while True:
+    while run:
         for event in pygame.event.get():
             
             if event.type == pygame.KEYDOWN :
@@ -159,6 +168,8 @@ if __name__ == "__main__":
                     snake.x_change = 0
                 elif event.key == pygame.K_ESCAPE :
                     exit()
+                elif event.key == pygame.K_p:
+                    snake.move()
                 
 
         
@@ -198,12 +209,34 @@ if __name__ == "__main__":
             snake.length -= 1
             bomb = Bomb()
         
-            
-            
-        #snake.play_time()
+        
+        
+        if snake.score > 5 :
+            snake.fps = 15
+        if snake.score > 10 :
+            snake.fps = 20   
+        if snake.score > 15 :
+            snake.fps = 25
+            pygame.draw.rect(display,(0,180,0),(1,1,800,600),15)
+            pygame.display.flip()
+        
+        if snake.score < 0 :
+            img = pygame.transform.scale(img_gameover,(800,600))
+            display.blit(img,(0,0))
+            font = pygame.font.SysFont(None,50)
+            text = font.render('please insert P for play again', True, (255,255,255))
+            display.blit(text, (170,80))
+            pygame.display.flip()
+            time.sleep(10)
+            run = False
+ 
+ 
+
+        
+        snake.play_time()
         pygame.display.update()
         
-        clock.tick(25)
+        clock.tick(snake.fps)
 
 
 
